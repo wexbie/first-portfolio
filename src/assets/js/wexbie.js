@@ -215,14 +215,6 @@ $(function () {
   $("#iletisim-form").submit(function (e) {
     e.preventDefault();
     var th = $(this);
-    
-    // reCAPTCHA kontrolü yapılıyorsa (aşağıdaki kodlarda var), doğrulama yapıldıktan sonra AJAX çalışacak
-    var recaptchaCevabi = grecaptcha.getResponse();
-    if (recaptchaCevabi.length === 0) {
-      // Doğrulanmadıysa aşağıda zaten uyarısı var, o yüzden burada sadece işlemi durduruyoruz.
-      return false;
-    }
-
     $.ajax({
       type: "POST",
       url: "https://api.web3forms.com/submit",
@@ -235,7 +227,6 @@ $(function () {
           $('.iletisim').find('.form__reply').removeClass('is-visible');
           $('.iletisim').find('.form').delay(300).removeClass('is-hidden');
           th.trigger("reset");
-          grecaptcha.reset();
         }, 5000);
       } else {
         alert("Mesaj gönderilirken bir hata oluştu.");
@@ -351,29 +342,4 @@ document.getElementById("mesaj").addEventListener("input", function (event) {
   let konu = event.target.value;
   konu = konu.replace(/[^A-Za-z0-9.!?,; ]/g, '');
   event.target.value = konu;
-});
-document.getElementById("iletisim-form").addEventListener("submit", function (event) {
-  var recaptchaCevabi = grecaptcha.getResponse();
-  if (recaptchaCevabi.length == 0) {
-    event.preventDefault();
-    document.getElementById("recaptchanot").style.display = 'none';
-    Swal.fire({
-      position: 'center',
-      imageUrl: 'src/assets/img/favicon/w-yuvarlak.png',
-      imageWidth: 100,
-      imageHeight: 100,
-      imageAlt: 'Wex Logo',
-      title: 'Lütfen reCAPTCHA\'yı doğrulayın.',
-      showConfirmButton: false,
-      timer: 2500,
-      timerProgressBar: true,
-      customClass: {
-        popup: 'swal-popup-large'
-      }
-    }).then(() => {
-      setTimeout(function () {
-        location.reload();
-      }, 1000);
-    });
-  }
-});
+});
