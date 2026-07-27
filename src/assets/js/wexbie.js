@@ -212,20 +212,34 @@ $(function () {
     });
   };
 
-  $("#iletisim-form").submit(function () {
+  $("#iletisim-form").submit(function (e) {
+    e.preventDefault();
     var th = $(this);
+    
+    // reCAPTCHA kontrolü yapılıyorsa (aşağıdaki kodlarda var), doğrulama yapıldıktan sonra AJAX çalışacak
+    var recaptchaCevabi = grecaptcha.getResponse();
+    if (recaptchaCevabi.length === 0) {
+      // Doğrulanmadıysa aşağıda zaten uyarısı var, o yüzden burada sadece işlemi durduruyoruz.
+      return false;
+    }
+
     $.ajax({
       type: "POST",
-      url: "mail.php",
+      url: "https://api.web3forms.com/submit",
       data: th.serialize()
-    }).done(function () {
-      $('.iletisim').find('.form').addClass('is-hidden');
-      $('.iletisim').find('.form__reply').addClass('is-visible');
-      setTimeout(function () {
-        $('.iletisim').find('.form__reply').removeClass('is-visible');
-        $('.iletisim').find('.form').delay(300).removeClass('is-hidden');
-        th.trigger("reset");
-      }, 5000);
+    }).done(function (response) {
+      if(response.success) {
+        $('.iletisim').find('.form').addClass('is-hidden');
+        $('.iletisim').find('.form__reply').addClass('is-visible');
+        setTimeout(function () {
+          $('.iletisim').find('.form__reply').removeClass('is-visible');
+          $('.iletisim').find('.form').delay(300).removeClass('is-hidden');
+          th.trigger("reset");
+          grecaptcha.reset();
+        }, 5000);
+      } else {
+        alert("Mesaj gönderilirken bir hata oluştu.");
+      }
     });
     return false;
   });
